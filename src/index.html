@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文件管理器</title>
-    <link rel="stylesheet" href="./file/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -201,6 +201,28 @@
         </div>
     </div>
 
+    <!-- 自定义确认对话框 -->
+    <div id="confirmModal" class="modal confirm-modal">
+        <div class="modal-content confirm-modal-content">
+            <div class="confirm-icon-container">
+                <div id="confirmIcon" class="confirm-icon">⚠️</div>
+            </div>
+            <h3 id="confirmTitle" class="confirm-title">确认操作</h3>
+            <p id="confirmMessage" class="confirm-message">您确定要执行此操作吗？</p>
+            <div id="confirmDetails" class="confirm-details" style="display: none;"></div>
+            <div class="confirm-actions">
+                <button id="confirmCancelBtn" class="btn btn-cancel confirm-btn">
+                    <span class="icon">✕</span>
+                    <span class="btn-text">取消</span>
+                </button>
+                <button id="confirmOkBtn" class="btn btn-danger confirm-btn">
+                    <span class="icon">✓</span>
+                    <span class="btn-text">确认</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 全屏加载动画 -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner">
@@ -214,6 +236,6 @@
         </div>
     </div>
 
-    <script src="./file/script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
