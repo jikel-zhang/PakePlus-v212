@@ -1,32 +1,241 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件管理器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>文件管理系统</h1>
+                <span class="subtitle">File Management System</span>
+            </div>
+        </header>
 
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
-            <form class="row" id="greet-form">
-                <input id="inputValue" placeholder="Enter a something..." />
-            </form>
-            <div class="resultBox">
-                <span>result: </span>
-                <span id="result"></span>
+        <div class="main-content">
+            <!-- 文件夹选择区域 -->
+            <div class="folder-selection">
+                <div class="folder-actions">
+                    <button id="selectFolderBtn" class="btn btn-primary">
+                        <span class="icon">📂</span>
+                        选择文件夹
+                    </button>
+                    <button id="clearFolderBtn" class="btn btn-cancel" style="display: none;">
+                        <span class="icon">🔄</span>
+                        清除记忆
+                    </button>
+                </div>
+                <div class="folder-path-container">
+                    <div id="folderPath" class="folder-path">未选择文件夹</div>
+                </div>
             </div>
-            <div class="invokeBox">
-                <button id="openUrl">open_url_browser</button>
-                <button id="openUrlNew">open_url_new</button>
-                <button id="runCommand">run_command</button>
-                <button id="downloadFile">download_file</button>
-                <button id="getExeDir">get_exe_dir</button>
-                <button id="getEnvVar">get_env_var</button>
-                <button id="findPort">find_port</button>
+
+            <!-- 文件上传区域 -->
+            <div id="uploadSection" class="upload-section" style="display: none;">
+                <div class="upload-box">
+                    <input type="file" id="fileInput" multiple style="display: none;">
+                    <button id="uploadBtn" class="btn btn-secondary">
+                        <span class="icon">📤</span>
+                        添加文件
+                    </button>
+                    <button id="createFolderBtn" class="btn btn-folder">
+                        <span class="icon">📁</span>
+                        创建文件夹
+                    </button>
+                    <p class="upload-hint">支持多文件选择和文件夹创建</p>
+                </div>
             </div>
-        </main>
-    </body>
+
+            <!-- 导航栏 -->
+            <div id="navigationSection" class="navigation-section" style="display: none;">
+                <button id="backBtn" class="btn btn-back" style="display: none;">
+                    <span class="icon">⬅️</span>
+                    返回上级
+                </button>
+                <div id="breadcrumb" class="breadcrumb">
+                    <span class="breadcrumb-item">根目录</span>
+                </div>
+            </div>
+
+            <!-- 文件列表区域 -->
+            <div id="fileListSection" class="file-list-section" style="display: none;">
+                <!-- 文件树和列表容器 -->
+                <div class="content-container">
+                    <!-- 文件树侧边栏 -->
+                    <div id="fileTreeSection" class="file-tree-section">
+                        <div class="tree-header">
+                            <h3>📁 目录树</h3>
+                            <button id="toggleTreeBtn" class="btn-icon" title="收起/展开">
+                                <span id="toggleTreeIcon">◀</span>
+                            </button>
+                        </div>
+                        <div id="fileTree" class="file-tree">
+                            <!-- 文件树将在这里动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 主内容区域 -->
+                    <div class="main-list-area">
+                <div class="section-header">
+                    <h2>文件列表</h2>
+                    <div class="header-right">
+                        <span id="fileCount" class="file-count">0 个文件</span>
+                        <select id="itemsPerPageSelect" class="items-per-page-select">
+                            <option value="10">每页10项</option>
+                            <option value="20" selected>每页20项</option>
+                            <option value="50">每页50项</option>
+                            <option value="100">每页100项</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 搜索栏 -->
+                <div class="search-bar">
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜索文件或文件夹名称...">
+                    <button id="searchBtn" class="btn btn-primary">
+                        <span class="icon">🔍</span>
+                        搜索
+                    </button>
+                    <button id="resetBtn" class="btn btn-cancel">
+                        <span class="icon">↺</span>
+                        重置
+                    </button>
+                    <button id="clearPageBtn" class="btn btn-danger">
+                        <span class="icon">🗑️</span>
+                        清空本页
+                    </button>
+                </div>
+                <div id="fileList" class="file-list"></div>
+                <div id="emptyState" class="empty-state">
+                    <p>📭 还没有文件，点击上方按钮添加文件</p>
+                </div>
+                
+                <!-- 分页控件 -->
+                <div id="pagination" class="pagination" style="display: none;">
+                    <button id="firstPageBtn" class="pagination-btn">
+                        <span class="icon">⏮️</span>
+                        首页
+                    </button>
+                    <button id="prevPageBtn" class="pagination-btn">
+                        <span class="icon">⬅️</span>
+                        上一页
+                    </button>
+                    <div class="page-info">
+                        第 <span id="currentPageNum">1</span> 页 / 共 <span id="totalPages">1</span> 页
+                    </div>
+                    <button id="nextPageBtn" class="pagination-btn">
+                        下一页
+                        <span class="icon">➡️</span>
+                    </button>
+                    <button id="lastPageBtn" class="pagination-btn">
+                        末页
+                        <span class="icon">⏭️</span>
+                    </button>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重命名模态框 -->
+    <div id="renameModal" class="modal">
+        <div class="modal-content">
+            <h3>重命名文件</h3>
+            <input type="text" id="newFileName" class="input-field" placeholder="输入新文件名">
+            <div class="modal-actions">
+                <button id="confirmRename" class="btn btn-primary">确认</button>
+                <button id="cancelRename" class="btn btn-cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建文件夹模态框 -->
+    <div id="createFolderModal" class="modal">
+        <div class="modal-content">
+            <h3>创建文件夹</h3>
+            <input type="text" id="newFolderName" class="input-field" placeholder="输入文件夹名称">
+            <div class="modal-actions">
+                <button id="confirmCreateFolder" class="btn btn-primary">创建</button>
+                <button id="cancelCreateFolder" class="btn btn-cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置路径模态框 -->
+    <div id="setPathModal" class="modal">
+        <div class="modal-content path-modal">
+            <h3>设置文件夹完整路径</h3>
+            <div class="path-instructions">
+                <p class="instruction-title">📝 获取完整路径的方法：</p>
+                <ol class="instruction-list">
+                    <li>在文件资源管理器中打开此文件夹</li>
+                    <li>点击地址栏，复制完整路径（Ctrl+C）</li>
+                    <li>在下方输入框中粘贴（Ctrl+V）</li>
+                </ol>
+            </div>
+            <div class="path-input-group">
+                <input type="text" id="fullPathInput" class="input-field" placeholder="例如：D:\04-XiangMu\03-ZiDongFangYuReact\web-defense">
+            </div>
+            <p class="path-example">当前文件夹名称：<strong id="currentFolderName"></strong></p>
+            <div class="modal-actions">
+                <button id="confirmSetPath" class="btn btn-primary">确认并保存</button>
+                <button id="skipSetPath" class="btn btn-cancel">跳过（仅显示文件夹名）</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文件预览模态框 -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content preview-modal">
+            <div class="preview-header">
+                <h3 id="previewTitle">文件预览</h3>
+                <button id="closePreview" class="btn-close">✕</button>
+            </div>
+            <div id="previewContent" class="preview-content">
+                <!-- 预览内容将动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义确认对话框 -->
+    <div id="confirmModal" class="modal confirm-modal">
+        <div class="modal-content confirm-modal-content">
+            <div class="confirm-icon-container">
+                <div id="confirmIcon" class="confirm-icon">⚠️</div>
+            </div>
+            <h3 id="confirmTitle" class="confirm-title">确认操作</h3>
+            <p id="confirmMessage" class="confirm-message">您确定要执行此操作吗？</p>
+            <div id="confirmDetails" class="confirm-details" style="display: none;"></div>
+            <div class="confirm-actions">
+                <button id="confirmCancelBtn" class="btn btn-cancel confirm-btn">
+                    <span class="icon">✕</span>
+                    <span class="btn-text">取消</span>
+                </button>
+                <button id="confirmOkBtn" class="btn btn-danger confirm-btn">
+                    <span class="icon">✓</span>
+                    <span class="btn-text">确认</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全屏加载动画 -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <div id="loadingText" class="loading-text">处理中...</div>
+            <div id="loadingProgress" class="loading-progress"></div>
+            <div id="progressBarContainer" class="progress-bar-container" style="display: none;">
+                <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+            </div>
+            <div id="progressPercentage" class="progress-percentage" style="display: none;">0%</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
